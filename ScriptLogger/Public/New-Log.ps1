@@ -27,7 +27,7 @@ function New-Log {
         #* Create a variable for each bound parameter because dynamic parameters do not automatically assign one
         $PSBoundParameters.GetEnumerator() | ForEach-Object { Set-Variable -Name $PSItem.Key -Value $PSItem.Value }
 
-        if ((-not [string]::IsNullOrWhiteSpace($LogName)) -and (-not (Confirm-Privileges))) {
+        if ((-not [string]::IsNullOrWhiteSpace($LogName)) -and (($PSEdition -eq 'Core') -or (-not (Confirm-Privileges)))) {
             Write-Warning 'You must have Administrative Privileges in order to write to the Windows Event Log'
         }
     }

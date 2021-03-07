@@ -235,7 +235,7 @@ function Write-Log {
 
             $caller = Get-PSCallStack | Where-Object { $PSItem.Command } | Select-Object -Skip 1 -First 1
 
-            $context = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+            $username = [System.Environment]::UserDomainName + '\' + [System.Environment]::UserName
             $thread = [System.Threading.Thread]::CurrentThread.ManagedThreadId
 
 
@@ -291,7 +291,9 @@ function Write-Log {
             }
 
 
-            if (Confirm-Privileges) { New-EventLog -LogName $LogName -Source $LogSource -ErrorAction Ignore }
+            if (($PSEdition -ne 'Core') -and (Confirm-Privileges)) {
+                New-EventLog -LogName $LogName -Source $LogSource -ErrorAction Ignore
+            }
         }
     }
 
@@ -328,7 +330,7 @@ function Write-Log {
                             [void]$string.AppendFormat('time="{0:HH:mm:ss.fff}+000"',   $timestamp              ).Append(' ')
                             [void]$string.AppendFormat('date="{0:MM-dd-yyyy}"',         $timestamp              ).Append(' ')
                             [void]$string.AppendFormat('component="{0}"',               $caller.Command         ).Append(' ')
-                            [void]$string.AppendFormat('context="{0}"',                 $context.Name           ).Append(' ')
+                            [void]$string.AppendFormat('context="{0}"',                 $username               ).Append(' ')
                             [void]$string.AppendFormat('type="{0}"',                    $LogTypes.Item($Level)  ).Append(' ')
                             [void]$string.AppendFormat('thread="{0}"',                  $thread                 ).Append(' ')
                             [void]$string.AppendFormat('file="{0}"',                    $caller.Location        ).Append('>')
@@ -347,7 +349,9 @@ function Write-Log {
                 }
 
                 if (-not [string]::IsNullOrWhiteSpace($LogName)) {
-                    if (Confirm-Privileges) { Write-EventLog -Message $logtext @eventinfo }
+                    if (($PSEdition -ne 'Core') -and (Confirm-Privileges)) {
+                        Write-EventLog -Message $logtext @eventinfo
+                    }
                 }
 
 
