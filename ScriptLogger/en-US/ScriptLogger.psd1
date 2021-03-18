@@ -1,6 +1,6 @@
 @{
     LogColors = @{
-        TimeStamp = 'DarkGray'
+        Timestamp = 'DarkGray'
           Message = 'Gray'
 
           Error = 'Red'

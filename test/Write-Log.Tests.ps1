@@ -1,6 +1,6 @@
 ﻿
 $ModuleManifestName = 'ScriptLogger.psd1'
-$ModuleManifestPath = "$PSScriptRoot\..\ScriptLogger\$ModuleManifestName"
+$ModuleManifestPath = '{0}\..\ScriptLogger\{1}' -f $PSScriptRoot, $ModuleManifestName
 
 Import-Module -FullyQualifiedName $ModuleManifestPath -Force
 
@@ -8,7 +8,7 @@ Import-Module -FullyQualifiedName $ModuleManifestPath -Force
 function Test-Log ([string]$Type) {
     switch -Regex ($Type) {
         'File' {
-            Set-Item -Path 'env:\LOGFILE' -Value 'C:\Temp\ScriptLogger.log' -Force
+            Set-Item -Path 'env:\LOGFILE' -Value 'C:\Temp\ScriptLogger.log'
             Write-Log -Message 'Rotating log file' -LogFile $env:LOGFILE -ForceRotate
         }
 
@@ -38,7 +38,7 @@ function Test-Log ([string]$Type) {
     }
 
     foreach ($variable in ('LOGFILE', 'LOGNAME', 'LOGSOURCE', 'LOGLEVEL', 'VERBOSITY')) {
-        Remove-Item -Path (Join-Path -Path 'env:' -ChildPath $variable) -Force -ErrorAction Ignore
+        Remove-Item -Path (Join-Path -Path 'env:' -ChildPath $variable) -ErrorAction Ignore
     }
 }
 

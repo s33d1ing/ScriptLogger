@@ -357,7 +357,7 @@ function Write-Log {
 
                 if ($TeeConsole -and (($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
                     foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 25))) {
-                        Write-Host -Object $timestamp.ToString('[HH:mm:ss.fff] ')   -NoNewLine  -ForegroundColor $LogColors.TimeStamp
+                        Write-Host -Object $timestamp.ToString('[HH:mm:ss.fff] ')   -NoNewLine  -ForegroundColor $LogColors.Timestamp
                         Write-Host -Object $Level.ToUpper(), $Tab                   -NoNewLine  -ForegroundColor $LogColors.Item($Level)
                         Write-Host -Object $line                                                -ForegroundColor $LogColors.Message
                     }
