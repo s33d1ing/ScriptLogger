@@ -359,7 +359,12 @@ function Write-Log {
                     foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 25))) {
                         Write-Host -Object $timestamp.ToString('[HH:mm:ss.fff] ')   -NoNewLine  -ForegroundColor $LogColors.Timestamp
                         Write-Host -Object $Level.ToUpper(), $Tab                   -NoNewLine  -ForegroundColor $LogColors.Item($Level)
-                        Write-Host -Object $line                                                -ForegroundColor $LogColors.Message
+
+                        #* Check if text color was specified
+                        switch ($Message.MessageData.ForegroundColor) {
+                            { $PSItem -eq $null } { Write-Host -Object $line -ForegroundColor $LogColors.Message }
+                            { $PSItem -ne $null } { Write-Host -Object $line -ForegroundColor $PSItem }
+                        }
                     }
                 }
             }

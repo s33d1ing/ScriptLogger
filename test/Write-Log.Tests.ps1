@@ -70,6 +70,8 @@ function Invoke-Project {
 }
 
 function Write-Streams {
+    Write-Host 'Writing all streams...' -ForegroundColor Green
+
     Write-Error   'This is an error'
     Write-Warning 'This is a warning'
     Write-Output  'This is an info message'
