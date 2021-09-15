@@ -9,10 +9,13 @@
 
         Verbose = 'DarkGreen'
           Debug = 'DarkCyan'
+
+        Progress = 'Magenta'
     }
 
     LogTypes = @{
         Information = 1
+           Progress = 1
 
           Error = 3
         Warning = 2
@@ -21,7 +24,4 @@
         Verbose = -10
           Debug = -20
     }
-
-    Space = [char]32
-      Tab = [char]9
 }

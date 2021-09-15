@@ -35,7 +35,7 @@ function Backup-Log {
 
         [Parameter()]
         [ValidateScript({$PSItem -gt 0})]
-        [int]$MaxLogSize = 1MB,
+        [int]$MaxLogSize = 10MB,
 
         [Parameter()]
         [ValidateScript({$PSItem -gt 0})]

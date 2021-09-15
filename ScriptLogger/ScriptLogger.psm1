@@ -42,11 +42,11 @@ Import-LocalizedData -BindingVariable $Module.Name
 Export-ModuleMember @Members -Variable $Module.Name
 
 
-#* Assign localized data values to their own variables
 $resources = Get-Variable -Name $Module.Name -ValueOnly
 
 Set-Variable -Name 'LogColors' -Value $resources.LogColors -Force
 Set-Variable -Name 'LogTypes' -Value $resources.LogTypes -Force
 
-Set-Variable -Name 'Space' -Value $resources.Space -Force
-Set-Variable -Name 'Tab' -Value $resources.Tab -Force
+
+$script:LastMessage = [System.String]::Empty
+$script:WriteProgress = [System.Collections.Generic.List[System.Object]]::new()

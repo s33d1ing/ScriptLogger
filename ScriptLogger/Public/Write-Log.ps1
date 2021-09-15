@@ -2,37 +2,64 @@ function Write-Log {
 
     <#
         .SYNOPSIS
-            Writes an event message to a log file or event log, and to the console.
+            Writes an event message to the console and to a log file or event log.
 
         .DESCRIPTION
-            Creates a Configuration Manager (CMTrace) compatible log file and/or
-            writes an event to an event log, and formatted message for the console.
+            Prints a formatted message to the console, and/or creates a Configuration
+            Manager (CMTrace) compatible log file or writes to the Windows EventLog.
 
 
         .PARAMETER Level
             Specifies the level of the event message.
 
-                  Error  Due to a more serious problem, the software has not been able to perform some function.
-                Warning  An indication that something unexpected happened, or indicative of a problem in the future.
-                   Info  Confirmation that things are working as expected.
-                Verbose  Additional information about command processing.
-                  Debug  Detailed information, typically of interest only when diagnosing problems.
+                   Error  Due to a more serious problem, the software has not been able to perform some function.
+                 Warning  An indication that something unexpected happened, or indicative of a problem in the future.
+                    Info  Confirmation that things are working as expected.
+                 Verbose  Additional information about command processing.
+                   Debug  Detailed information, typically of interest only when diagnosing problems.
+                Progress  Used for messages that communicate progress in longer running commands and scripts.
 
             A number can be appended to the end of the level (e.g. Verbose3) to automatically set the value.
+            If Progress is specified, additional parameters are enabled and Write-Log will mimic Write-Progress.
 
         .PARAMETER Value
             Specifies the verbosity of the event message.
 
 
-        .PARAMETER Message
-            Specifies the event message.
+        .PARAMETER InputObject
+            Specifies the event message or the first line of text in the status bar.
+
+
+        .PARAMETER Status
+            Specifies the second line of text in the heading above the status bar.
+
+        .PARAMETER Id
+            Specifies an ID that distinguishes each progress bar from the others.
+
+        .PARAMETER PercentComplete
+            Specifies the percentage of the activity that is completed.
+
+        .PARAMETER SecondsRemaining
+            Specifies the projected number of seconds remaining until the activity is completed.
+
+        .PARAMETER CurrentOperation
+            Specifies the line of text below the progress bar.
+
+        .PARAMETER ParentId
+            Specifies the parent activity of the current activity.
+
+        .PARAMETER Completed
+            Indicates whether the progress bar is visible.
+
+        .PARAMETER SourceId
+            Specifies the source of the record.
 
 
         .PARAMETER LogFile
             Specifies the path of the log file to which the event is written.
 
         .PARAMETER LogFormat
-            Specifies whether to create a human readable or CMTrace compatable log file.
+            Specifies whether to create a CMTrace compatable or human readable log file.
 
 
         .PARAMETER LogName
@@ -50,6 +77,9 @@ function Write-Log {
 
         .PARAMETER TeeConsole
             Specifies whether to output to the console as well as the log file or event log.
+
+        .PARAMETER RewriteLines
+            If the message is the same as the previous message, overwrite the previous message in the console.
 
 
         .PARAMETER ThreadSafe
@@ -92,6 +122,21 @@ function Write-Log {
                 All messages of the specified LogLevel will be written to the log file or event log regardless of the Value.
 
             Intended to be set by the calling module or project through an environment or private variable.
+
+
+        .EXAMPLE
+            Write-Log [[-Level] <string>] [-Value <int>] [-InputObject] <Object>
+
+            [-Status <string>] [-Id <int>] [-PercentComplete <int>] [-SecondsRemaining <int>]
+            [-CurrentOperation <string>] [-ParentId <int>] [-Completed] [-SourceId <int>]
+
+            -LogFile <string> [-LogFormat <string>] [-EnableRotation <bool>]
+            [-MaxLogFiles <int>] [-MaxLogSize <int>] [-MaxLogAge <int>] [-ForceRotate]
+
+            -LogName <string> [-LogSource <string>] [-EventId <int>] [-EventCategory <int>]
+
+            [-TeeConsole <bool>] [-RewriteLines <bool>] [-ThreadSafe <bool>] [-MutexTimeout <int>]
+            [-LogLevel <string>] [-Verbosity <int>] [<CommonParameters>]
     #>
 
     [Alias('Logger')]
@@ -99,83 +144,151 @@ function Write-Log {
 
     param (
         [Parameter(Position = 0)]
-        [ValidatePattern('^(Error|Warning|Info|Verbose|Debug)(\d+)?$')]
-        # [ValidateSet('Error', 'Warning', 'Info', 'Verbose', 'Debug')]
+        [ValidatePattern('^(Error|Warning|Info|Verbose|Debug|Progress)(\d+)?$')]
+        # [ValidateSet('Error', 'Warning', 'Info', 'Verbose', 'Debug', 'Progress')]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable')]
         [string]$Level = 'Info',
 
         [Parameter(DontShow = $true)]
-        [ValidateRange(0, 65535)]
+        [ValidateRange(0, 2147483647)]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable')]
         [nullable[int]]$Value = 0,
 
 
-        [Alias('Msg')]
+        [Alias('Activity', 'Message')]
         [Parameter(Mandatory = $true, Position = 1, ValueFromPipeline = $true)]
         [AllowEmptyString()]
-        [object]$Message,
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [object]$InputObject,
+
+
+        [Parameter(DontShow = $true)]
+        [ValidateNotNullOrEmpty()]
+        [ValidateScript({$Level -eq 'Progress'})]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [string]$Status,
+
+        [Parameter(DontShow = $true)]
+        [ValidateRange(0, 2147483647)]
+        [ValidateScript({$Level -eq 'Progress'})]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [int]$Id,
+
+        [Parameter(DontShow = $true)]
+        [ValidateRange(-1, 100)]
+        [ValidateScript({$Level -eq 'Progress'})]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [int]$PercentComplete,
+
+        [Parameter(DontShow = $true)]
+        [ValidateScript({$Level -eq 'Progress'})]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [int]$SecondsRemaining,
+
+        [Parameter(DontShow = $true)]
+        [ValidateScript({$Level -eq 'Progress'})]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [string]$CurrentOperation,
+
+        [Parameter(DontShow = $true)]
+        [ValidateRange(-1, 2147483647)]
+        [ValidateScript({$Level -eq 'Progress'})]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [int]$ParentId,
+
+        [Parameter(DontShow = $true)]
+        [ValidateScript({$Level -eq 'Progress'})]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [switch]$Completed,
+
+        [Parameter(DontShow = $true)]
+        [ValidateScript({$Level -eq 'Progress'})]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Variable', Progress = $true)]
+        [int]$SourceId,
 
 
         [Alias('File', 'Path')]
         [Parameter(Mandatory = $true, ParameterSetName = 'LogFile')]
         [ValidateScript({Test-Path -Path $PSItem -IsValid})]
+        [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Constant')]
         [string]$LogFile,
 
         [Alias('Format')]
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateSet('CMTrace', 'PlainText')]
+        [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Constant')]
         [string]$LogFormat = 'CMTrace',
 
 
         [Alias('Name')]
         [Parameter(Mandatory = $true, ParameterSetName = 'EventLog')]
+        [ScriptLogger(ParameterSets = 'EventLog', ParameterType = 'Constant')]
         [string]$LogName,
 
         [Alias('Source')]
         [Parameter(ParameterSetName = 'EventLog')]
+        [ScriptLogger(ParameterSets = 'EventLog', ParameterType = 'Constant')]
         [string]$LogSource,
 
-        [Alias('Id')]
+        # [Alias('Id')]
         [Parameter(ParameterSetName = 'EventLog')]
         [ValidateRange(0, 65535)]
+        [ScriptLogger(ParameterSets = 'EventLog', ParameterType = 'Constant')]
         [int]$EventId,
 
-        [Alias('Category')]
+        # [Alias('Category')]
         [Parameter(ParameterSetName = 'EventLog')]
         [ValidateRange(0, 65535)]
+        [ScriptLogger(ParameterSets = 'EventLog', ParameterType = 'Constant')]
         [int]$EventCategory,
 
 
         [Parameter(ParameterSetName = 'Console')]
         [Parameter(ParameterSetName = 'EventLog')]
         [Parameter(ParameterSetName = 'LogFile')]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Constant')]
         [bool]$TeeConsole = $true,
+
+        [Parameter(ParameterSetName = 'Console')]
+        [Parameter(ParameterSetName = 'EventLog')]
+        [Parameter(ParameterSetName = 'LogFile')]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Constant')]
+        [bool]$RewriteLines = $true,
 
 
         [Parameter(ParameterSetName = 'EventLog')]
         [Parameter(ParameterSetName = 'LogFile')]
+        [ScriptLogger(ParameterSets = ('EventLog', 'LogFile'), ParameterType = 'Constant')]
         [bool]$ThreadSafe = $true,
 
         [Parameter(ParameterSetName = 'EventLog')]
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateRange(-1, 65535)]
+        [ScriptLogger(ParameterSets = ('EventLog', 'LogFile'), ParameterType = 'Constant')]
         [int]$MutexTimeout = 1000,
 
 
         [Parameter(ParameterSetName = 'LogFile')]
+        [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Constant')]
         [bool]$EnableRotation = $true,
 
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateScript({$PSItem -ge -1})]
+        [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Constant')]
         [int]$MaxLogFiles = 5,
 
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateScript({$PSItem -gt 0})]
-        [int]$MaxLogSize = 1MB,
+        [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Constant')]
+        [int]$MaxLogSize = 10MB,
 
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateScript({$PSItem -gt 0})]
+        [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Constant')]
         [int]$MaxLogAge = 7,
 
         [Parameter(ParameterSetName = 'LogFile')]
+        [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Variable')]
         [switch]$ForceRotate,
 
 
@@ -183,12 +296,14 @@ function Write-Log {
         [Parameter(DontShow = $true, ParameterSetName = 'EventLog')]
         [Parameter(DontShow = $true, ParameterSetName = 'LogFile')]
         [ValidateSet('Error', 'Warning', 'Info', 'Verbose', 'Debug')]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Constant')]
         [string]$LogLevel = 'Info',
 
         [Parameter(DontShow = $true, ParameterSetName = 'Console')]
         [Parameter(DontShow = $true, ParameterSetName = 'EventLog')]
         [Parameter(DontShow = $true, ParameterSetName = 'LogFile')]
-        [ValidateRange(-1, 65535)]
+        [ValidateRange(-1, 2147483647)]
+        [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Constant')]
         [nullable[int]]$Verbosity = 0
     )
 
@@ -196,29 +311,30 @@ function Write-Log {
         if ($ThreadSafe) { $mutex = [System.Threading.Mutex]::new($false, 'Global\Logger') }
 
 
-        foreach ($parameter in $PSCmdlet.MyInvocation.MyCommand.Parameters.Keys) {
-            if ($parameter -notin ('Level', 'Value', 'Message', 'EventId', 'EventCategory')) {
+        foreach ($parameter in $PSCmdlet.MyInvocation.MyCommand.Parameters.Values) {
+            if ($parameter.Attributes | Where-Object { $PSItem.TypeId.Name -eq 'ScriptLoggerAttribute' } |
+                Where-Object { ($PSItem.ParameterType -eq 'Constant') -or $parameter.Constant }) {
 
-                if (-not $PSBoundParameters.ContainsKey($parameter)) {
-                    $path = Join-Path -Path 'env:' -ChildPath $parameter.ToUpper()
+                if (-not $PSBoundParameters.ContainsKey($parameter.Name)) {
+                    $path = Join-Path -Path 'env:' -ChildPath $parameter.Name.ToUpper()
 
                     if (($item = Get-Item -Path $path -ErrorAction Ignore) -or
-                        ($item = $PSCmdlet.SessionState.PSVariable.Get($parameter))) {
+                        ($item = $PSCmdlet.SessionState.PSVariable.Get($parameter.Name))) {
 
                         Set-Variable -Name 'bool', 'int' -Value $null
 
                         if ([bool]::TryParse($item.Value, [ref]$bool)) { $item.Value = $bool }
                         if ([int]::TryParse($item.Value, [ref]$int)) { $item.Value = $int }
 
-                        # $PSBoundParameters[$parameter] = $item.Value
-                        Set-Variable -Name $parameter -Value $item.Value
+                        # $PSBoundParameters[$parameter.Name] = $item.Value
+                        Set-Variable -Name $parameter.Name -Value $item.Value
                     }
                 }
             }
         }
 
 
-        if ($Level -match '^(?<Level>Error|Warning|Info|Verbose|Debug)(?<Value>\d+)?$') {
+        if ($Level -match '^(?<Level>Error|Warning|Info|Verbose|Debug|Progress)(?<Value>\d+)?$') {
             if (-not [string]::IsNullOrEmpty($Matches.Level)) { $Level = $Matches.Level }
             if (-not [string]::IsNullOrEmpty($Matches.Value)) { $Value = $Matches.Value }
         }
@@ -241,7 +357,6 @@ function Write-Log {
 
             $fileinfo = @{
                 FilePath = $LogFile
-
                 Encoding = 'utf8'
 
                   Append = $true
@@ -276,8 +391,8 @@ function Write-Log {
         if (-not [string]::IsNullOrWhiteSpace($LogName)) {
             if ([string]::IsNullOrWhiteSpace($LogSource)) { $LogSource = $LogName }
 
-            if (-not $PSBoundParameters.ContainsKey('EventId')) { $EventId = $LogTypes.Item($Level) -replace '-' }
-            if (-not $PSBoundParameters.ContainsKey('Category')) { $EventCategory = [System.Int32]::new() }
+            if (-not $PSBoundParameters.ContainsKey('EventId')) { $EventId = [math]::Abs($LogTypes.Item($Level)) }
+            if (-not $PSBoundParameters.ContainsKey('Category')) { $EventCategory = [int]::new() }
 
 
             $eventinfo = @{
@@ -295,16 +410,17 @@ function Write-Log {
                 New-EventLog -LogName $LogName -Source $LogSource -ErrorAction Ignore
             }
         }
+
+        [console]::CursorVisible = $false
     }
 
     process {
-        $logtext = $Message | ConvertTo-String
+        $logtext = $InputObject | ConvertTo-String
         $timestamp = [System.DateTime]::Now
 
 
-        #* If the level was not provided and the message is from a redirected stream, update the level
         if (-not ($PSBoundParameters.Keys | Where-Object { $PSItem -in 'Level', 'Verbose', 'Debug' })) {
-            switch (Select-Object -InputObject $Message.GetType() -ExpandProperty Name) {
+            switch (Select-Object -InputObject $InputObject.GetType() -ExpandProperty Name) {
 
                   'ErrorRecord' { Set-Variable -Name 'Level' -Value 'Error'   }
                 'WarningRecord' { Set-Variable -Name 'Level' -Value 'Warning' }
@@ -312,8 +428,45 @@ function Write-Log {
                 'VerboseRecord' { Set-Variable -Name 'Level' -Value 'Verbose' }
                   'DebugRecord' { Set-Variable -Name 'Level' -Value 'Debug'   }
 
-                        default { Set-Variable -Name 'Level' -Value 'Info'    }
+
+                'InformationRecord' {
+                    if ($InputObject.MessageData.GetType() -match 'ProgressRecord') {
+                        Set-Variable -Name 'InputObject' -Value $InputObject.MessageData
+                    }
+                }
+
+                { $PSItem, $InputObject.GetType() -match 'ProgressRecord' } {
+                    Set-Variable -Name 'Level' -Value 'Progress'
+
+                    # Set-Variable -Name 'Activity'         -Value $InputObject.Activity
+                    Set-Variable -Name 'Status'           -Value $InputObject.StatusDescription
+                    Set-Variable -Name 'Id'               -Value $InputObject.ActivityId
+                    Set-Variable -Name 'PercentComplete'  -Value $InputObject.PercentComplete
+                    Set-Variable -Name 'CurrentOperation' -Value $InputObject.CurrentOperation
+                    Set-Variable -Name 'SecondsRemaining' -Value $InputObject.SecondsRemaining
+                    Set-Variable -Name 'ParentId'         -Value $InputObject.ParentActivityId
+
+                    switch ($InputObject.RecordType) {
+                        'Completed'  { Set-Variable -Name 'Completed' -Value $true  }
+                        'Processing' { Set-Variable -Name 'Completed' -Value $false }
+                    }
+
+                    # Set-Variable -Name 'InputObject' -Value $InputObject.Activity
+                    $PSBoundParameters.InputObject = $InputObject.Activity
+                }
+
+
+                default { Set-Variable -Name 'Level' -Value 'Info' }
             }
+        }
+
+        if ($Level -eq 'Progress') {
+            $parameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values | Where-Object {
+                $PSItem.Attributes | Where-Object { ($PSItem.TypeId.Name -eq 'ScriptLoggerAttribute') -and $PSItem.Progress }
+            }
+
+            $progress = Get-ParameterValues -Cmdlet $PSCmdlet -Include $parameters.Name
+            $logtext = Format-Progress @progress -Width ($Host.UI.RawUI.BufferSize.Width - 28)
         }
 
 
@@ -326,23 +479,24 @@ function Write-Log {
                         'CMTrace' {
                             $string = [System.Text.StringBuilder]::new()
 
-                            [void]$string.AppendFormat('<![LOG[{0}]LOG]!>',             $logtext                ).Append('<')
-                            [void]$string.AppendFormat('time="{0:HH:mm:ss.fff}+000"',   $timestamp              ).Append(' ')
-                            [void]$string.AppendFormat('date="{0:MM-dd-yyyy}"',         $timestamp              ).Append(' ')
-                            [void]$string.AppendFormat('component="{0}"',               $caller.Command         ).Append(' ')
-                            [void]$string.AppendFormat('context="{0}"',                 $username               ).Append(' ')
-                            [void]$string.AppendFormat('type="{0}"',                    $LogTypes.Item($Level)  ).Append(' ')
-                            [void]$string.AppendFormat('thread="{0}"',                  $thread                 ).Append(' ')
-                            [void]$string.AppendFormat('file="{0}"',                    $caller.Location        ).Append('>')
+                            [void]$string.AppendFormat('<![LOG[{0}]LOG]!><',            $logtext                )
+                            [void]$string.AppendFormat('time="{0:HH:mm:ss.fff}+000" ',  $timestamp              )
+                            [void]$string.AppendFormat('date="{0:MM-dd-yyyy}" ',        $timestamp              )
+                            [void]$string.AppendFormat('component="{0}" ',              $caller.Command         )
+                            [void]$string.AppendFormat('context="{0}" ',                $username               )
+                            [void]$string.AppendFormat('type="{0}" ',                   $LogTypes.Item($Level)  )
+                            [void]$string.AppendFormat('thread="{0}" ',                 $thread                 )
+                            [void]$string.AppendFormat('file="{0}">',                   $caller.Location        )
 
                             Out-File -InputObject $string.ToString() @fileinfo
                         }
 
                         'PlainText' {
-                            foreach ($line in (Split-Line -Message $logtext -Width -1)) {
-                                Out-File -InputObject $timestamp.ToString('[HH:mm:ss.fff] ')    -NoNewLine  @fileinfo
-                                Out-File -InputObject $Level.ToUpper(), $Space, $Tab            -NoNewLine  @fileinfo
-                                Out-File -InputObject $line                                                 @fileinfo
+                            foreach ($line in (Split-Line -Message $logtext)) {
+                                Out-File -InputObject ('[{0:HH:mm:ss.fff}] ' -f $timestamp) -NoNewLine  @fileinfo
+                                Out-File -InputObject ('{0,-10}' -f $Level.ToUpper())       -NoNewLine  @fileinfo
+
+                                Out-File -InputObject $line.TrimEnd()                                   @fileinfo
                             }
                         }
                     }
@@ -350,20 +504,39 @@ function Write-Log {
 
                 if (-not [string]::IsNullOrWhiteSpace($LogName)) {
                     if (($PSEdition -ne 'Core') -and (Confirm-Privileges)) {
-                        Write-EventLog -Message $logtext @eventinfo
+                        Write-EventLog -Message ($logtext -replace '(?m)\s*$') @eventinfo
                     }
                 }
 
 
                 if ($TeeConsole -and (($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
-                    foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 25))) {
-                        Write-Host -Object $timestamp.ToString('[HH:mm:ss.fff] ')   -NoNewLine  -ForegroundColor $LogColors.Timestamp
-                        Write-Host -Object $Level.ToUpper(), $Tab                   -NoNewLine  -ForegroundColor $LogColors.Item($Level)
+                    if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
 
-                        #* Check if text color was specified
-                        switch ($Message.MessageData.ForegroundColor) {
-                            { $PSItem -eq $null } { Write-Host -Object $line -ForegroundColor $LogColors.Message }
-                            { $PSItem -ne $null } { Write-Host -Object $line -ForegroundColor $PSItem }
+                    foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
+                        if ($RewriteLines -and ($Level -ne 'Progress') -and ($script:LastMessage -eq $line)) { Move-Cursor -Y -1 }
+
+                        Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp
+                        Write-Host -Object ('{0,-10}'-f $Level.ToUpper())           -NoNewLine  -ForegroundColor $LogColors.Item($Level)
+
+                        switch ($InputObject.MessageData.ForegroundColor) {
+                            { $null -eq $PSItem } { Write-Host -Object $line -ForegroundColor $LogColors.Message }
+                            { $null -ne $PSItem } { Write-Host -Object $line -ForegroundColor $PSItem }
+                        }
+
+                        if ($RewriteLines -and ($Level -ne 'Progress')) {
+                            $script:LastMessage = $line
+                            $script:WriteProgress.Clear()
+                        }
+                    }
+
+                    if ($RewriteLines -and ($Level -eq 'Progress')) {
+                        $script:LastMessage = [string]::Empty
+                        $script:WriteProgress.Add($progress)
+
+                        if ($Completed -and ([string]::IsNullOrEmpty($progress.ParentId) -or
+                            ($progress.ParentId -notin $script:WriteProgress.Id))) {
+
+                            $script:WriteProgress.Clear()
                         }
                     }
                 }
@@ -375,5 +548,7 @@ function Write-Log {
 
     end {
         if ($ThreadSafe) { $mutex.Dispose() }
+
+        [console]::CursorVisible = $true
     }
 }

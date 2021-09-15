@@ -1,3 +1,27 @@
+class ScriptLoggerAttribute : Attribute {
+
+    [ValidateSet('Console', 'EventLog', 'LogFile')]
+    [string[]]$ParameterSets
+
+    [ValidateSet('Constant', 'Variable')]
+    [string]$ParameterType
+
+
+    # [bool]$Constant
+    # [bool]$Variable
+
+    [bool]$Progress
+
+
+    ScriptLoggerAttribute() { }
+
+    ScriptLoggerAttribute([string]$ParameterSets, [string]$ParameterType) {
+        $this.ParameterSets = $ParameterSets
+        $this.ParameterType = $ParameterType
+    }
+}
+
+
 class ScriptLogger {
 
     [ValidateSet('Error', 'Warning', 'Info', 'Verbose', 'Debug')]

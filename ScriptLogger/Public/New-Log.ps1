@@ -2,7 +2,7 @@ function New-Log {
 
     <#
         .ForwardHelpTargetName ScriptLogger\Write-Log
-        .ForwardHelpCategory Function
+        .ForwardHelpCategory Cmdlet
     #>
 
     [Alias('InitLog')]
@@ -14,17 +14,18 @@ function New-Log {
     )
 
     DynamicParam {
-        $exclude = 'Level', 'Value', 'Message', 'EventId', 'EventCategory', 'ForceRotate'
-        $dictionary = Import-DynamicParameters -CommandName 'Write-Log' -Exclude $exclude
+        $constants = Get-Command -Name Write-Log | ForEach-Object { $PSItem.Parameters.Values } | Where-Object {
+            $PSItem.Attributes | Where-Object { ($PSItem.TypeId.Name -eq 'ScriptLoggerAttribute') } |
+                Where-Object { ($PSItem.ParameterType -eq 'Constant') -or $PSItem.Constant }
+        }
 
-        #* Create a variable for each imported parameter because runtime defined parameters do not automatically assign one
+        $dictionary = Import-DynamicParameters -CommandName 'Write-Log' -Include $constants.Name
         $dictionary.GetEnumerator() | ForEach-Object { Set-Variable -Name $PSItem.Value.Name -Value $PSItem.Value.Value }
 
         $dictionary
     }
 
     begin {
-        #* Create a variable for each bound parameter because dynamic parameters do not automatically assign one
         $PSBoundParameters.GetEnumerator() | ForEach-Object { Set-Variable -Name $PSItem.Key -Value $PSItem.Value }
 
         if ((-not [string]::IsNullOrWhiteSpace($LogName)) -and (($PSEdition -eq 'Core') -or (-not (Confirm-Privileges)))) {
@@ -37,7 +38,9 @@ function New-Log {
 
         if ($CreateEnvironmentVariables) {
             $parameters.GetEnumerator() | ForEach-Object {
-                Set-Item -Path (Join-Path -Path 'env:' -ChildPath $PSItem.Key.ToUpper()) -Value $PSItem.Value -Force
+                $path = Join-Path -Path 'env:' -ChildPath $PSItem.Key.ToUpper()
+
+                Set-Item -Path $path -Value $PSItem.Value -Force
             }
         }
 
