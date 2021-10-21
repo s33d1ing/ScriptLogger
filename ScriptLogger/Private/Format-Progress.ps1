@@ -1,9 +1,12 @@
 function Format-Progress {
 
     param (
-        [Alias('InputObject')]
+        # [Parameter(Mandatory = $true, Position = 0)]
+        # [string]$Activity,
+
         [Parameter(Mandatory = $true, Position = 0)]
-        [string]$Activity,
+        [string]$InputObject,
+
 
         [Parameter(Position = 1)]
         [ValidateNotNullOrEmpty()]
@@ -47,7 +50,9 @@ function Format-Progress {
 
     [void]$string.AppendLine()
     [void]$string.Append(' ' * $Indentation)
-    [void]$string.AppendLine($Activity.PadRight($Width - $Indentation))
+
+    # [void]$string.AppendLine($Activity.PadRight($Width - $Indentation))
+    [void]$string.AppendLine($InputObject.PadRight($Width - $Indentation))
 
     $Indentation = $Indentation + 4
 

@@ -5,9 +5,9 @@ $ModuleManifestPath = '{0}\..\ScriptLogger\{1}' -f $PSScriptRoot, $ModuleManifes
 Import-Module -FullyQualifiedName $ModuleManifestPath -Force
 
 
-function Test-Log ([string]$Type) {
+function Test-Log ([string]$Type, [switch]$Trace) {
 
-    switch -Regex ($Type) {
+    switch ($Type) {
         'File' {
             Set-Item -Path 'env:\LOGFILE' -Value 'C:\Temp\ScriptLogger.log'
             Write-Log -Message 'Rotating log file' -LogFile $env:LOGFILE -ForceRotate
@@ -19,11 +19,13 @@ function Test-Log ([string]$Type) {
         }
     }
 
-    foreach ($type in ('Error', 'Warning', 'Info', 'Verbose', 'Debug')) {
-       Set-Item -Path 'env:\LOGLEVEL' -Value $type -PassThru | Logger -Debug
+    foreach ($level in ('Error', 'Warning', 'Info', 'Verbose', 'Debug')) {
 
-        foreach ($level in (-1, 0, 1)) {
-            Set-Item -Path 'env:\VERBOSITY' -Value $level -PassThru | Logger -Debug
+        if ($Trace.IsPresent) { Set-Item -Path 'env:\LOGLEVEL' -Value 'Trace' }
+        else { Set-Item -Path 'env:\LOGLEVEL' -Value $level -PassThru | Logger -Debug }
+
+        foreach ($verbosity in (-1, 0, 1)) {
+            Set-Item -Path 'env:\VERBOSITY' -Value $verbosity -PassThru | Logger -Debug
 
             Write-Log -Level Error   -Message 'This is an error'
             Write-Log -Level Warning -Message 'This is a warning'
@@ -44,6 +46,7 @@ function Test-Log ([string]$Type) {
 }
 
 function Invoke-Project {
+
     [CmdletBinding()]
     param (
         [Parameter(DontShow = $true)]
@@ -166,7 +169,7 @@ function Test-Pipeline {
 }
 
 
-Test-Log
+Test-Log  # -Trace
 
 # Test-Log -Type 'File'
 # Test-Log -Type 'Name'

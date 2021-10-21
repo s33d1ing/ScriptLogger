@@ -17,6 +17,7 @@ function Write-Log {
                     Info  Confirmation that things are working as expected.
                  Verbose  Additional information about command processing.
                    Debug  Detailed information, typically of interest only when diagnosing problems.
+
                 Progress  Used for messages that communicate progress in longer running commands and scripts.
 
             A number can be appended to the end of the level (e.g. Verbose3) to automatically set the value.
@@ -110,6 +111,8 @@ function Write-Log {
 
                 By default both the Level and the LogLevel are set to Info. When set to Info, all Info messages and any
                 higher levels (i.e. Warning and Error) will be logged. Setting to Verbose or Debug will increase logging.
+
+                Setting to Trace will log all messages regardless of LogLevel or Verbosity.
 
             Intended to be set by the calling module or project through an environment or private variable.
 
@@ -295,7 +298,7 @@ function Write-Log {
         [Parameter(DontShow = $true, ParameterSetName = 'Console')]
         [Parameter(DontShow = $true, ParameterSetName = 'EventLog')]
         [Parameter(DontShow = $true, ParameterSetName = 'LogFile')]
-        [ValidateSet('Error', 'Warning', 'Info', 'Verbose', 'Debug')]
+        [ValidateSet('Error', 'Warning', 'Info', 'Verbose', 'Debug',  'Trace')]
         [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Constant')]
         [string]$LogLevel = 'Info',
 
@@ -313,22 +316,22 @@ function Write-Log {
 
         foreach ($parameter in $PSCmdlet.MyInvocation.MyCommand.Parameters.Values) {
             if ($parameter.Attributes | Where-Object { $PSItem.TypeId.Name -eq 'ScriptLoggerAttribute' } |
-                Where-Object { ($PSItem.ParameterType -eq 'Constant') -or $parameter.Constant }) {
+                Where-Object { ($PSItem.ParameterType -eq 'Constant') -or $PSItem.Constant }) {
 
                 if (-not $PSBoundParameters.ContainsKey($parameter.Name)) {
-                    $path = Join-Path -Path 'env:' -ChildPath $parameter.Name.ToUpper()
 
-                    if (($item = Get-Item -Path $path -ErrorAction Ignore) -or
-                        ($item = $PSCmdlet.SessionState.PSVariable.Get($parameter.Name))) {
+                    if (($variable = [System.Environment]::GetEnvironmentVariable($parameter.Name)) -or
+                        ($variable = Get-Variable -Name $parameter.Name -ValueOnly -ErrorAction Ignore)) {
 
                         Set-Variable -Name 'bool', 'int' -Value $null
 
-                        if ([bool]::TryParse($item.Value, [ref]$bool)) { $item.Value = $bool }
-                        if ([int]::TryParse($item.Value, [ref]$int)) { $item.Value = $int }
+                        if ([bool]::TryParse($variable, [ref]$bool)) { $variable = $bool }
+                        if ([int]::TryParse($variable, [ref]$int)) { $variable = $int }
 
-                        # $PSBoundParameters[$parameter.Name] = $item.Value
-                        Set-Variable -Name $parameter.Name -Value $item.Value
+                        # $PSBoundParameters[$parameter.Name] = $variable
+                        Set-Variable -Name $parameter.Name -Value $variable
                     }
+
                 }
             }
         }
@@ -411,6 +414,7 @@ function Write-Log {
             }
         }
 
+
         [console]::CursorVisible = $false
     }
 
@@ -438,6 +442,7 @@ function Write-Log {
                 { $PSItem, $InputObject.GetType() -match 'ProgressRecord' } {
                     Set-Variable -Name 'Level' -Value 'Progress'
 
+
                     # Set-Variable -Name 'Activity'         -Value $InputObject.Activity
                     Set-Variable -Name 'Status'           -Value $InputObject.StatusDescription
                     Set-Variable -Name 'Id'               -Value $InputObject.ActivityId
@@ -451,8 +456,9 @@ function Write-Log {
                         'Processing' { Set-Variable -Name 'Completed' -Value $false }
                     }
 
+
                     # Set-Variable -Name 'InputObject' -Value $InputObject.Activity
-                    $PSBoundParameters.InputObject = $InputObject.Activity
+                    $PSBoundParameters['InputObject'] = $InputObject.Activity
                 }
 
 
@@ -471,7 +477,7 @@ function Write-Log {
 
 
         if ((-not $ThreadSafe) -or ($mutex.WaitOne($MutexTimeout))) {
-            if ($LogTypes.Item($Level) -ge $LogTypes.Item($LogLevel)) {
+            if (($LogLevel -eq 'Trace') -or ($LogTypes.Item($Level) -ge $LogTypes.Item($LogLevel))) {
 
                 if (-not [string]::IsNullOrWhiteSpace($LogFile)) {
                     switch ($LogFormat) {
@@ -496,7 +502,7 @@ function Write-Log {
                                 Out-File -InputObject ('[{0:HH:mm:ss.fff}] ' -f $timestamp) -NoNewLine  @fileinfo
                                 Out-File -InputObject ('{0,-10}' -f $Level.ToUpper())       -NoNewLine  @fileinfo
 
-                                Out-File -InputObject $line.TrimEnd()                                   @fileinfo
+                                Out-File -InputObject $line.TrimEnd() @fileinfo
                             }
                         }
                     }
@@ -509,7 +515,7 @@ function Write-Log {
                 }
 
 
-                if ($TeeConsole -and (($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
+                if ($TeeConsole -and (($LogLevel -eq 'Trace') -or ($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
                     if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
 
                     foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
