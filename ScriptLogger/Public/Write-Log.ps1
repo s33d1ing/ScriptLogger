@@ -298,7 +298,7 @@ function Write-Log {
         [Parameter(DontShow = $true, ParameterSetName = 'Console')]
         [Parameter(DontShow = $true, ParameterSetName = 'EventLog')]
         [Parameter(DontShow = $true, ParameterSetName = 'LogFile')]
-        [ValidateSet('Error', 'Warning', 'Info', 'Verbose', 'Debug',  'Trace')]
+        [ValidateSet('Error', 'Warning', 'Info', 'Verbose', 'Debug', 'Trace')]
         [ScriptLogger(ParameterSets = ('Console', 'EventLog', 'LogFile'), ParameterType = 'Constant')]
         [string]$LogLevel = 'Info',
 
