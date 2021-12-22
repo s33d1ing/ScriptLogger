@@ -35,7 +35,7 @@ function Backup-Log {
 
         [Parameter()]
         [ValidateScript({$PSItem -gt 0})]
-        [int]$MaxLogSize = 1MB,
+        [int]$MaxLogSize = 10MB,
 
         [Parameter()]
         [ValidateScript({$PSItem -gt 0})]
@@ -48,6 +48,7 @@ function Backup-Log {
 
     $LogFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($LogFile)
 
+
     if ($item = Get-Item -Path $LogFile -ErrorAction Ignore) {
         $age = New-TimeSpan -Start $item.LastWriteTime | Select-Object -ExpandProperty Days
 
@@ -57,6 +58,7 @@ function Backup-Log {
             $files = Get-ChildItem -Path $item.Directory -File |
                 Where-Object -Property Name -Match $name |
                 Sort-Object -Property LastWriteTime -Descending
+
 
             for ($count = $files.Count; $count -gt 0; $count--) {
                 $path = $files[$count - 1] | Select-Object -ExpandProperty FullName

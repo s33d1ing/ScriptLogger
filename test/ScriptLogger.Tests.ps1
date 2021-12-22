@@ -1,7 +1,7 @@
 #Requires -Modules @{ ModuleName = 'Pester'; ModuleVersion = '5.0' }
 
 $ModuleManifestName = 'ScriptLogger.psd1'
-$ModuleManifestPath = "$PSScriptRoot\..\ScriptLogger\$ModuleManifestName"
+$ModuleManifestPath = '{0}\..\ScriptLogger\{1}' -f $PSScriptRoot, $ModuleManifestName
 
 Import-Module -FullyQualifiedName $ModuleManifestPath -Force
 

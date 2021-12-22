@@ -1,5 +1,5 @@
 function Import-DynamicParameters {
-    [CmdletBinding()]
+
     param(
         [Alias('Name')]
         [Parameter(Mandatory = $true)]

@@ -1,5 +1,5 @@
 function Split-Line {
-    [CmdletBinding()]
+
     param (
         [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
         [AllowEmptyString()]
@@ -34,7 +34,7 @@ function Split-Line {
                     }
                 }
 
-                $part.TrimEnd()
+                $part  # .TrimEnd()
             }
             else { $line }
         }
