@@ -349,7 +349,7 @@ function Write-Log {
         if (-not [string]::IsNullOrWhiteSpace($LogFile)) {
             $LogFile = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($LogFile)
 
-            New-Item -Path (Split-Path -Path $LogFile -Parent) -ItemType Directory -Force | Out-Null
+            New-Item -Path (Split-Path -Path $LogFile -Parent) -ItemType Directory -Force -ErrorAction Ignore | Out-Null
 
 
             $caller = Get-PSCallStack | Where-Object { $PSItem.Command } | Select-Object -Skip 1 -First 1
