@@ -457,8 +457,8 @@ function Write-Log {
                     }
 
 
-                    # Set-Variable -Name 'InputObject' -Value $InputObject.Activity
                     $PSBoundParameters['InputObject'] = $InputObject.Activity
+                    Set-Variable -Name 'InputObject' -Value $InputObject.Activity
                 }
 
 
@@ -516,33 +516,35 @@ function Write-Log {
 
 
                 if ($TeeConsole -and (($LogLevel -eq 'Trace') -or ($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
-                    if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
+                    if (($Level -ne 'Progress') -or (($Level -eq 'Progress') -and ($InputObject -ne 'Preparing modules for first use.'))) {
+                        if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
 
-                    foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
-                        if ($RewriteLines -and ($Level -ne 'Progress') -and ($script:LastMessage -eq $line)) { Move-Cursor -Y -1 }
+                        foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
+                            if ($RewriteLines -and ($Level -ne 'Progress') -and ($script:LastMessage -eq $line)) { Move-Cursor -Y -1 }
 
-                        Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp
-                        Write-Host -Object ('{0,-10}'-f $Level.ToUpper())           -NoNewLine  -ForegroundColor $LogColors.Item($Level)
+                            Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp
+                            Write-Host -Object ('{0,-10}'-f $Level.ToUpper())           -NoNewLine  -ForegroundColor $LogColors.Item($Level)
 
-                        switch ($InputObject.MessageData.ForegroundColor) {
-                            { $null -eq $PSItem } { Write-Host -Object $line -ForegroundColor $LogColors.Message }
-                            { $null -ne $PSItem } { Write-Host -Object $line -ForegroundColor $PSItem }
+                            switch ($InputObject.MessageData.ForegroundColor) {
+                                { $null -eq $PSItem } { Write-Host -Object $line -ForegroundColor $LogColors.Message }
+                                { $null -ne $PSItem } { Write-Host -Object $line -ForegroundColor $PSItem }
+                            }
+
+                            if ($RewriteLines -and ($Level -ne 'Progress')) {
+                                $script:LastMessage = $line
+                                $script:WriteProgress.Clear()
+                            }
                         }
 
-                        if ($RewriteLines -and ($Level -ne 'Progress')) {
-                            $script:LastMessage = $line
-                            $script:WriteProgress.Clear()
-                        }
-                    }
+                        if ($RewriteLines -and ($Level -eq 'Progress')) {
+                            $script:LastMessage = [string]::Empty
+                            $script:WriteProgress.Add($progress)
 
-                    if ($RewriteLines -and ($Level -eq 'Progress')) {
-                        $script:LastMessage = [string]::Empty
-                        $script:WriteProgress.Add($progress)
+                            if ($Completed -and ([string]::IsNullOrEmpty($progress.ParentId) -or
+                                ($progress.ParentId -notin $script:WriteProgress.Id))) {
 
-                        if ($Completed -and ([string]::IsNullOrEmpty($progress.ParentId) -or
-                            ($progress.ParentId -notin $script:WriteProgress.Id))) {
-
-                            $script:WriteProgress.Clear()
+                                $script:WriteProgress.Clear()
+                            }
                         }
                     }
                 }
