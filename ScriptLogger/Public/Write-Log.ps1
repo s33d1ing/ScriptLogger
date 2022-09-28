@@ -515,8 +515,8 @@ function Write-Log {
                 }
 
 
-                if ($TeeConsole -and (($LogLevel -eq 'Trace') -or ($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
-                    if (($Level -ne 'Progress') -or (($Level -eq 'Progress') -and ($InputObject -ne 'Preparing modules for first use.'))) {
+                if ($TeeConsole -and (-not $IgnoreStrings.Contains(($InputObject | ConvertTo-String))) -and
+                    (($LogLevel -eq 'Trace') -or ($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
                         if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
 
                         foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
@@ -546,7 +546,6 @@ function Write-Log {
                                 $script:WriteProgress.Clear()
                             }
                         }
-                    }
                 }
             }
 

@@ -24,4 +24,8 @@
         Verbose = -10
           Debug = -20
     }
+
+    IgnoreStrings = @(
+        'Preparing modules for first use.'
+    )
 }
