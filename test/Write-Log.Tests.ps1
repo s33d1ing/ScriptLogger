@@ -89,8 +89,9 @@ function Write-Streams {
 function Test-Rewrite {
     Write-Log -Message 'Starting'
 
-    for ($i = 0; $i -lt 10; $i++) {
-        'Loading...' | Logger -Verbose
+    for ($i = 0; $i -le 10; $i++) {
+        'Loading' + ('.' * ($Host.UI.RawUI.WindowSize.Width - 7)) | Logger -Verbose
+
         Start-Sleep -Milliseconds 750
     }
 
@@ -155,7 +156,7 @@ function Test-Pipeline {
                 # Write-Output 'Inner loop'
 
                 $parameters = @{
-                    Activity = 'Step {0} - Substep {1} - iteration {2}' -f $i, $j, $k
+                    Activity = 'Step {0} - Substep {1} - Iteration {2}' -f $i, $j, $k
                     Percent = $k / 8 * 100
                 }
 

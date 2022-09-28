@@ -518,7 +518,9 @@ function Write-Log {
                         if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
 
                         foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
-                            if ($RewriteLines -and ($Level -ne 'Progress') -and ($script:LastMessage -eq $line)) { Move-Cursor -Y -1 }
+                            if ($RewriteLines -and ($Level -ne 'Progress')) {
+                                if ($line -eq $script:LastMessage) { Move-Cursor -Y -1 ; $script:MessageCount++ } else { $script:MessageCount = [int]::new() }
+                            }
 
                             Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp
                             Write-Host -Object ('{0,-10}'-f $Level.ToUpper())           -NoNewLine  -ForegroundColor $LogColors.Item($Level)
@@ -529,20 +531,23 @@ function Write-Log {
                             }
 
                             if ($RewriteLines -and ($Level -ne 'Progress')) {
-                                $script:LastMessage = $line
-                                $script:WriteProgress.Clear()
+                                $script:LastMessage = $line ; $script:WriteProgress.Clear()
+
+                                if ($script:MessageCount -gt 0) {
+                                    Move-Cursor -X ($Host.UI.RawUI.WindowSize.Width - 4 - $script:MessageCount.ToString().Length) -Y -1
+                                    Write-Host -Object (' [{0}] ' -f $script:MessageCount) -ForegroundColor $LogColors.Timestamp
+                                }
                             }
                         }
 
                         if ($RewriteLines -and ($Level -eq 'Progress')) {
-                            $script:LastMessage = [string]::Empty
-                            $script:WriteProgress.Add($progress)
+                            $script:LastMessage = [string]::Empty ; $script:WriteProgress.Add($progress)
 
                             if ($Completed -and ([string]::IsNullOrEmpty($progress.ParentId) -or
                                 ($progress.ParentId -notin $script:WriteProgress.Id))) {
 
-                                $script:WriteProgress.Clear()
-                            }
+                                    $script:WriteProgress.Clear()
+                                }
                         }
                 }
             }
