@@ -188,3 +188,5 @@ Test-Progress
 
 
 Test-Pipeline *>&1 | Write-Log  # -Verbose
+
+Get-Content -Path $PSScriptRoot\dism.txt | Write-Log

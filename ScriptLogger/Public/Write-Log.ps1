@@ -520,6 +520,7 @@ function Write-Log {
                         foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
                             if ($RewriteLines -and ($Level -ne 'Progress')) {
                                 if ($line -eq $script:LastMessage) { Move-Cursor -Y -1 ; $script:MessageCount++ } else { $script:MessageCount = [int]::new() }
+                                if (($line -match '\[[=\s]{26,27}\d{1,3}\.\d%[=\s]{26,27}\]') -and [string]::IsNullOrWhiteSpace($script:LastMessage)) { Move-Cursor -Y -2 }
                             }
 
                             Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp
