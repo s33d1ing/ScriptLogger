@@ -508,10 +508,8 @@ function Write-Log {
                     }
                 }
 
-                if (-not [string]::IsNullOrWhiteSpace($LogName)) {
-                    if (($PSEdition -ne 'Core') -and (Confirm-Privileges)) {
-                        Write-EventLog -Message ($logtext -replace '(?m)\s*$') @eventinfo
-                    }
+                if ((-not [string]::IsNullOrWhiteSpace($LogName)) -and (-not [string]::IsNullOrWhiteSpace($logtext))) {
+                    if (($PSEdition -ne 'Core') -and (Confirm-Privileges)) { Write-EventLog -Message ($logtext -replace '(?m)\s*$') @eventinfo }
                 }
 
 
