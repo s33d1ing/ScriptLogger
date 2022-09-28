@@ -47,6 +47,8 @@ $resources = Get-Variable -Name $Module.Name -ValueOnly
 Set-Variable -Name 'LogColors' -Value $resources.LogColors -Force
 Set-Variable -Name 'LogTypes' -Value $resources.LogTypes -Force
 
+Set-Variable -Name 'IgnoreStrings' -Value $resources.IgnoreStrings -Force
 
-$script:LastMessage = [System.String]::Empty
+
+$script:LastMessage = [string]::Empty ; $script:MessageCount = [int]::new()
 $script:WriteProgress = [System.Collections.Generic.List[System.Object]]::new()

@@ -326,7 +326,7 @@ function Write-Log {
                         Set-Variable -Name 'bool', 'int' -Value $null
 
                         if ([bool]::TryParse($variable, [ref]$bool)) { $variable = $bool }
-                        if ([int]::TryParse($variable, [ref]$int)) { $variable = $int }
+                        if ([int]::TryParse($variable,  [ref]$int))  { $variable = $int  }
 
                         # $PSBoundParameters[$parameter.Name] = $variable
                         Set-Variable -Name $parameter.Name -Value $variable
@@ -443,7 +443,7 @@ function Write-Log {
                     Set-Variable -Name 'Level' -Value 'Progress'
 
 
-                    # Set-Variable -Name 'Activity'         -Value $InputObject.Activity
+                  # Set-Variable -Name 'Activity'         -Value $InputObject.Activity
                     Set-Variable -Name 'Status'           -Value $InputObject.StatusDescription
                     Set-Variable -Name 'Id'               -Value $InputObject.ActivityId
                     Set-Variable -Name 'PercentComplete'  -Value $InputObject.PercentComplete
@@ -508,19 +508,20 @@ function Write-Log {
                     }
                 }
 
-                if (-not [string]::IsNullOrWhiteSpace($LogName)) {
-                    if (($PSEdition -ne 'Core') -and (Confirm-Privileges)) {
-                        Write-EventLog -Message ($logtext -replace '(?m)\s*$') @eventinfo
-                    }
+                if ((-not [string]::IsNullOrWhiteSpace($LogName)) -and (-not [string]::IsNullOrWhiteSpace($logtext))) {
+                    if (($PSEdition -ne 'Core') -and (Confirm-Privileges)) { Write-EventLog -Message ($logtext -replace '(?m)\s*$') @eventinfo }
                 }
 
 
-                if ($TeeConsole -and (($LogLevel -eq 'Trace') -or ($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
-                    if (($Level -ne 'Progress') -or (($Level -eq 'Progress') -and ($InputObject -ne 'Preparing modules for first use.'))) {
+                if ($TeeConsole -and (-not $IgnoreStrings.Contains(($InputObject | ConvertTo-String))) -and
+                    (($LogLevel -eq 'Trace') -or ($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
                         if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
 
                         foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
-                            if ($RewriteLines -and ($Level -ne 'Progress') -and ($script:LastMessage -eq $line)) { Move-Cursor -Y -1 }
+                            if ($RewriteLines -and ($Level -ne 'Progress')) {
+                                if ($line -eq $script:LastMessage) { Move-Cursor -Y -1 ; $script:MessageCount++ } else { $script:MessageCount = [int]::new() }
+                                if (($line -match '\[[=\s]{26,27}\d{1,3}\.\d%[=\s]{26,27}\]') -and [string]::IsNullOrWhiteSpace($script:LastMessage)) { Move-Cursor -Y -2 }
+                            }
 
                             Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp
                             Write-Host -Object ('{0,-10}'-f $Level.ToUpper())           -NoNewLine  -ForegroundColor $LogColors.Item($Level)
@@ -531,22 +532,24 @@ function Write-Log {
                             }
 
                             if ($RewriteLines -and ($Level -ne 'Progress')) {
-                                $script:LastMessage = $line
-                                $script:WriteProgress.Clear()
+                                $script:LastMessage = $line ; $script:WriteProgress.Clear()
+
+                                if ($script:MessageCount -gt 0) {
+                                    Move-Cursor -X ($Host.UI.RawUI.WindowSize.Width - 4 - $script:MessageCount.ToString().Length) -Y -1
+                                    Write-Host -Object (' [{0}] ' -f $script:MessageCount) -ForegroundColor $LogColors.Timestamp
+                                }
                             }
                         }
 
                         if ($RewriteLines -and ($Level -eq 'Progress')) {
-                            $script:LastMessage = [string]::Empty
-                            $script:WriteProgress.Add($progress)
+                            $script:LastMessage = [string]::Empty ; $script:WriteProgress.Add($progress)
 
                             if ($Completed -and ([string]::IsNullOrEmpty($progress.ParentId) -or
                                 ($progress.ParentId -notin $script:WriteProgress.Id))) {
 
-                                $script:WriteProgress.Clear()
-                            }
+                                    $script:WriteProgress.Clear()
+                                }
                         }
-                    }
                 }
             }
 
