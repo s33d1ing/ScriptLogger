@@ -326,7 +326,7 @@ function Write-Log {
                         Set-Variable -Name 'bool', 'int' -Value $null
 
                         if ([bool]::TryParse($variable, [ref]$bool)) { $variable = $bool }
-                        if ([int]::TryParse($variable, [ref]$int)) { $variable = $int }
+                        if ([int]::TryParse($variable,  [ref]$int))  { $variable = $int  }
 
                         # $PSBoundParameters[$parameter.Name] = $variable
                         Set-Variable -Name $parameter.Name -Value $variable
@@ -443,7 +443,7 @@ function Write-Log {
                     Set-Variable -Name 'Level' -Value 'Progress'
 
 
-                    # Set-Variable -Name 'Activity'         -Value $InputObject.Activity
+                  # Set-Variable -Name 'Activity'         -Value $InputObject.Activity
                     Set-Variable -Name 'Status'           -Value $InputObject.StatusDescription
                     Set-Variable -Name 'Id'               -Value $InputObject.ActivityId
                     Set-Variable -Name 'PercentComplete'  -Value $InputObject.PercentComplete

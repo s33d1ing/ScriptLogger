@@ -1,11 +1,8 @@
 function Format-Progress {
 
     param (
-        # [Parameter(Mandatory = $true, Position = 0)]
-        # [string]$Activity,
-
         [Parameter(Mandatory = $true, Position = 0)]
-        [string]$InputObject,
+        [string]$InputObject,  # $Activity
 
 
         [Parameter(Position = 1)]
