@@ -283,7 +283,7 @@ function Write-Log {
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateScript({$PSItem -gt 0})]
         [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Constant')]
-        [int]$MaxLogSize = 10MB,
+        [int]$MaxLogSize = 100MB,
 
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateScript({$PSItem -gt 0})]
@@ -520,8 +520,24 @@ function Write-Log {
 
                     foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
                         if ($RewriteLines -and ($Level -ne 'Progress')) {
-                            if ($line -eq $script:LastMessage) { Move-Cursor -Y -1 ; $script:MessageCount++ } else { $script:MessageCount = [int]::new() }
-                            if (($line -match '\[[=\s]{26,27}\d{1,3}\.\d%[=\s]{26,27}\]') -and [string]::IsNullOrWhiteSpace($script:LastMessage)) { Move-Cursor -Y -2 }
+
+                            if ($line -eq $script:LastMessage) { Move-Cursor -Y -1 ; $script:MessageCount++ }
+
+                            # DISM - progress bars have a blank line before them, so the cursor needs to move up twice
+                            elseif ((($line -match '\[[=\s]{26,27}\d{1,3}\.\d%[=\s]{26,27}\]') -and ([string]::IsNullOrWhiteSpace($script:LastMessage))) -or
+                                (([string]::IsNullOrWhiteSpace($line)) -and ($script:LastMessage -match '\[[=\s]{26,27}\d{1,3}\.\d%[=\s]{26,27}\]'))) {
+
+                                Move-Cursor -Y -1 ; if (-not ([string]::IsNullOrWhiteSpace($line))) { $script:MessageCount++ }
+                            }
+
+                            # ROBOCOPY - fix "100% %" by writing a space over the second percent (%)
+                            elseif (($line -match '^[\d\s]{3}(\.\d)?%') -and ($script:LastMessage -match '^[\d\s]{3}(\.\d)?%')) {
+                                if ($line -match '^100%') { Move-Cursor -Y -1 ; Move-Cursor -X 30 ; Write-Host -Object ' ' }
+
+                                Move-Cursor -Y -1 ; $script:MessageCount++
+                            }
+
+                            else { $script:MessageCount = [int]::new() }
                         }
 
                         Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp

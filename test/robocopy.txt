@@ -1,0 +1,334 @@
+	  New Dir          0	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\
+	  New Dir          0	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\
+	  New Dir          1	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\a\
+	    New File  		   36072	atomic-registries-1.22.1-28.gitb507039.el7.x86_64.rpm
+100%
+	  New Dir          1	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\b\
+	    New File  		   8.8 m	buildah-1.11.6-12.el7_9.x86_64.rpm
+ 11.3%
+ 22.7%
+ 34.0%
+ 45.4%
+ 56.7%
+ 68.1%
+ 79.4%
+ 90.8%
+100%
+	  New Dir         14	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\c\
+	    New File  		  197284	cockpit-dashboard-195.12-1.el7_9.x86_64.rpm
+ 66%
+100%
+	    New File  		  287400	cockpit-doc-126-1.el7.x86_64.rpm
+ 45%
+ 91%
+100%
+	    New File  		   4.3 m	cockpit-leapp-0.1.6-2.el7_9.noarch.rpm
+ 11%
+ 23%
+ 34%
+ 46%
+ 58%
+ 69%
+ 81%
+ 92%
+100%
+	    New File  		  488548	cockpit-machines-195.12-1.el7_9.x86_64.rpm
+ 26%
+ 53%
+ 80%
+100%
+	    New File  		  264708	cockpit-packagekit-195.12-1.el7_9.x86_64.rpm
+ 49%
+ 99%
+100%
+	    New File  		   98212	cockpit-pcp-195.12-1.el7_9.x86_64.rpm
+100%
+	    New File  		  380668	cockpit-storaged-195.12-1.el7_9.noarch.rpm
+ 34%
+ 68%
+100%
+	    New File  		   33040	conmon-2.0.15-1.el7_8.x86_64.rpm
+100%
+	    New File  		   40896	container-selinux-2.119.2-1.911c772.el7_8.noarch.rpm
+100%
+	    New File  		  19.7 m	containernetworking-plugins-0.8.3-3.el7_8.x86_64.rpm
+  5.0%
+ 10.1%
+ 15.2%
+ 20.3%
+ 25.3%
+ 30.4%
+ 35.5%
+ 40.6%
+ 45.6%
+ 50.7%
+ 55.8%
+ 60.9%
+ 65.9%
+ 71.0%
+ 76.1%
+ 81.2%
+ 86.2%
+ 91.3%
+ 96.4%
+100%
+	    New File  		   44708	containers-common-0.1.40-12.el7_9.x86_64.rpm
+100%
+	    New File  		   66956	createrepo_c-0.10.0-20.el7.x86_64.rpm
+100%
+	    New File  		  269340	createrepo_c-devel-0.10.0-20.el7.x86_64.rpm
+ 48%
+ 97%
+100%
+	    New File  		   91560	createrepo_c-libs-0.10.0-20.el7.x86_64.rpm
+100%
+	  New Dir          5	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\d\
+	    New File  		  365592	dnf-4.0.9.2-2.el7_9.noarch.rpm
+ 35%
+ 71%
+100%
+	    New File  		   50324	dnf-automatic-4.0.9.2-2.el7_9.noarch.rpm
+100%
+	    New File  		   52316	dnf-data-4.0.9.2-2.el7_9.noarch.rpm
+100%
+	    New File  		  244128	dnf-plugin-subscription-manager-1.24.13-3.el7_7.x86_64.rpm
+ 53%
+100%
+	    New File  		   52740	dnf-plugins-core-4.0.2.2-3.el7_6.noarch.rpm
+100%
+	  New Dir          3	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\f\
+	    New File  		   55852	fuse-overlayfs-0.7.2-6.el7_8.x86_64.rpm
+100%
+	    New File  		   48076	fuse3-3.6.1-4.el7.x86_64.rpm
+100%
+	    New File  		   83824	fuse3-libs-3.6.1-4.el7.x86_64.rpm
+100%
+	  New Dir         28	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\l\
+	    New File  		   27064	leapp-0.13.0-1.el7_9.noarch.rpm
+100%
+	    New File  		   27592	leapp-0.14.0-1.el7_9.noarch.rpm
+100%
+	    New File  		   28676	leapp-0.15.0-2.el7_9.noarch.rpm
+100%
+	    New File  		    9652	leapp-deps-0.13.0-1.el7_9.noarch.rpm
+100%
+	    New File  		   10124	leapp-deps-0.14.0-1.el7_9.noarch.rpm
+100%
+	    New File  		   10612	leapp-deps-0.15.0-2.el7_9.noarch.rpm
+100%
+	    New File  		  617068	leapp-repository-0.14.0-4.el7_9.noarch.rpm
+ 42%
+ 84%
+100%
+	    New File  		   18800	leapp-repository-deps-0.14.0-4.el7_9.noarch.rpm
+100%
+	    New File  		   13484	leapp-repository-sos-plugin-0.9.0-4.el7.noarch.rpm
+100%
+	    New File  		  708808	leapp-upgrade-el7toel8-0.15.0-6.el7_9.noarch.rpm
+ 36%
+ 73%
+100%
+	    New File  		  798792	leapp-upgrade-el7toel8-0.16.0-4.el7_9.noarch.rpm
+ 32%
+ 65%
+ 98%
+100%
+	    New File  		  799684	leapp-upgrade-el7toel8-0.16.0-8.el7_9.noarch.rpm
+ 32%
+ 65%
+ 98%
+100%
+	    New File  		  833396	leapp-upgrade-el7toel8-0.17.0-1.el7_9.noarch.rpm
+ 31%
+ 62%
+ 94%
+100%
+	    New File  		   22576	leapp-upgrade-el7toel8-deps-0.15.0-6.el7_9.noarch.rpm
+100%
+	    New File  		   24824	leapp-upgrade-el7toel8-deps-0.16.0-4.el7_9.noarch.rpm
+100%
+	    New File  		   25268	leapp-upgrade-el7toel8-deps-0.16.0-8.el7_9.noarch.rpm
+100%
+	    New File  		   26936	leapp-upgrade-el7toel8-deps-0.17.0-1.el7_9.noarch.rpm
+100%
+	    New File  		   76672	libcomps-0.1.8-14.el7.x86_64.rpm
+100%
+	    New File  		   30668	libcomps-devel-0.1.8-14.el7.x86_64.rpm
+100%
+	    New File  		  143492	libcomps-doc-0.1.8-14.el7.noarch.rpm
+ 91%
+100%
+	    New File  		  548656	libdnf-0.22.5-2.el7_9.x86_64.rpm
+ 47%
+ 95%
+100%
+	    New File  		   32360	libdnf-devel-0.22.5-2.el7_9.x86_64.rpm
+100%
+	    New File  		  156928	libmodulemd-1.6.3-1.el7.x86_64.rpm
+ 83%
+100%
+	    New File  		   95024	libmodulemd-devel-1.6.3-1.el7.x86_64.rpm
+100%
+	    New File  		   28876	librhsm-0.0.3-3.el7_9.x86_64.rpm
+100%
+	    New File  		    6816	librhsm-devel-0.0.3-3.el7_9.x86_64.rpm
+100%
+	    New File  		  199708	libssh-0.7.1-7.el7.x86_64.rpm
+ 65%
+100%
+	    New File  		   77728	libvirt-dbus-1.3.0-1.el7.x86_64.rpm
+100%
+	  New Dir          1	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\n\
+	    New File  		   31244	nextgen-yum4-4.0.9.2-2.el7_9.noarch.rpm
+100%
+	  New Dir          1	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\o\
+	    New File  		  525680	ostree-2019.1-2.el7.x86_64.rpm
+ 49%
+ 99%
+100%
+	  New Dir         19	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\p\
+	    New File  		  12.8 m	podman-1.6.4-29.el7_9.x86_64.rpm
+  7.7%
+ 15.5%
+ 23.3%
+ 31.1%
+ 38.8%
+ 46.6%
+ 54.4%
+ 62.2%
+ 70.0%
+ 77.7%
+ 85.5%
+ 93.3%
+100%
+	    New File  		  12.5 m	podman-1.6.4-32.el7_9.x86_64.rpm
+  7.9%
+ 15.9%
+ 23.9%
+ 31.9%
+ 39.9%
+ 47.9%
+ 55.8%
+ 63.8%
+ 71.8%
+ 79.8%
+ 87.8%
+ 95.8%
+100%
+	    New File  		  13.3 m	podman-1.6.4-36.el7_9.x86_64.rpm
+  7.4%
+ 14.9%
+ 22.4%
+ 29.8%
+ 37.3%
+ 44.8%
+ 52.3%
+ 59.7%
+ 67.2%
+ 74.7%
+ 82.2%
+ 89.6%
+ 97.1%
+100%
+	    New File  		   32292	podman-docker-1.6.4-29.el7_9.noarch.rpm
+100%
+	    New File  		   32784	podman-docker-1.6.4-32.el7_9.noarch.rpm
+100%
+	    New File  		   33472	podman-docker-1.6.4-36.el7_9.noarch.rpm
+100%
+	    New File  		  140224	python-libcomps-doc-0.1.8-14.el7.noarch.rpm
+ 93%
+100%
+	    New File  		   52884	python2-createrepo_c-0.10.0-20.el7.x86_64.rpm
+100%
+	    New File  		  424000	python2-dnf-4.0.9.2-2.el7_9.noarch.rpm
+ 30%
+ 61%
+ 92%
+100%
+	    New File  		   45016	python2-dnf-plugin-versionlock-4.0.2.2-3.el7_6.noarch.rpm
+100%
+	    New File  		  168540	python2-dnf-plugins-core-4.0.2.2-3.el7_6.noarch.rpm
+ 77%
+100%
+	    New File  		   72548	python2-hawkey-0.22.5-2.el7_9.x86_64.rpm
+100%
+	    New File  		   39884	python2-jmespath-0.9.0-6.el7_7.noarch.rpm
+100%
+	    New File  		  169716	python2-leapp-0.13.0-1.el7_9.noarch.rpm
+ 77%
+100%
+	    New File  		  172320	python2-leapp-0.14.0-1.el7_9.noarch.rpm
+ 76%
+100%
+	    New File  		  175644	python2-leapp-0.15.0-2.el7_9.noarch.rpm
+ 74%
+100%
+	    New File  		   48028	python2-libcomps-0.1.8-14.el7.x86_64.rpm
+100%
+	    New File  		  625488	python2-libdnf-0.22.5-2.el7_9.x86_64.rpm
+ 41%
+ 83%
+100%
+	    New File  		   48004	python3-libcomps-0.1.8-14.el7.x86_64.rpm
+100%
+	  New Dir          4	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\r\
+	    New File  		   1.4 m	rhel-system-roles-1.16.2-1.el7_9.3.noarch.rpm
+ 17%
+ 34%
+ 52%
+ 69%
+ 87%
+100%
+	    New File  		   1.2 m	rhel-system-roles-1.7.3-4.el7_9.noarch.rpm
+ 20%
+ 41%
+ 62%
+ 82%
+100%
+	    New File  		   22620	rhel-system-roles-techpreview-1.0-2.el7.noarch.rpm
+100%
+	    New File  		   2.6 m	runc-1.0.0-69.rc10.el7_9.x86_64.rpm
+ 18%
+ 37%
+ 56%
+ 74%
+ 93%
+100%
+	  New Dir          5	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\Packages\s\
+	    New File  		   5.7 m	skopeo-0.1.40-12.el7_9.x86_64.rpm
+  8.6%
+ 17.2%
+ 25.9%
+ 34.5%
+ 43.1%
+ 51.8%
+ 60.4%
+ 69.0%
+ 77.7%
+ 86.3%
+ 94.9%
+100%
+	    New File  		   83500	slirp4netns-0.4.3-4.el7_8.x86_64.rpm
+100%
+	    New File  		   53880	snactor-0.13.0-1.el7_9.noarch.rpm
+100%
+	    New File  		   54352	snactor-0.14.0-1.el7_9.noarch.rpm
+100%
+	    New File  		   54964	snactor-0.15.0-2.el7_9.noarch.rpm
+100%
+	  New Dir         31	E:\SUPPORT\Repositories\rhel-7-workstation-extras-rpms_local\repodata\
+	    New File  		   75591	2dfa3c32ea668d8b28e5b2723bd452e6334a98db46341f52f942be2844789317-filelists.sqlite.bz2
+100%
+	    New File  		   56167	3756183a36c415f6bcef3d7b255d44dd8a3fab9063da76c506f69dec3f6f7223-filelists.xml.gz
+100%
+	    New File  		   43191	4ecd007cf45241f08a8a9e7dc534d4e21b91e39e3d503e5d785eb3a7a13b283c-primary.sqlite.bz2
+100%
+	    New File  		   22379	50ec7f6ad031849535acc4d5f9665197bf967e7fbf1b8e5df2eeeb2bbecfd2e8-primary.xml.gz
+100%
+	    New File  		   33963	8bed87b171578c1020e83e3ebd623dd0a221b22de5ecbbb0a64ad54f6f1872df-other.sqlite.bz2
+100%
+	    New File  		   27209	b70ae1ec49842e2b9d63a1e8fb2867bd64f5bd460c9d56672bfa7e0f953e56d1-other.xml.gz
+100%
+	    New File  		    2987	repomd.xml
+100%
