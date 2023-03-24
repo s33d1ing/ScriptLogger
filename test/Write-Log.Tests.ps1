@@ -190,3 +190,4 @@ Test-Progress
 Test-Pipeline *>&1 | Write-Log  # -Verbose
 
 Get-Content -Path $PSScriptRoot\dism.txt | Write-Log
+Get-Content -Path $PSScriptRoot\robocopy.txt | Write-Log

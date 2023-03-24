@@ -283,7 +283,7 @@ function Write-Log {
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateScript({$PSItem -gt 0})]
         [ScriptLogger(ParameterSets = 'LogFile', ParameterType = 'Constant')]
-        [int]$MaxLogSize = 10MB,
+        [int]$MaxLogSize = 100MB,
 
         [Parameter(ParameterSetName = 'LogFile')]
         [ValidateScript({$PSItem -gt 0})]
@@ -515,41 +515,58 @@ function Write-Log {
 
                 if ($TeeConsole -and (-not $IgnoreStrings.Contains(($InputObject | ConvertTo-String))) -and
                     (($LogLevel -eq 'Trace') -or ($Value -le $Verbosity) -or ($PSBoundParameters.Keys -match 'Debug|Verbose'))) {
-                        if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
 
-                        foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
-                            if ($RewriteLines -and ($Level -ne 'Progress')) {
-                                if ($line -eq $script:LastMessage) { Move-Cursor -Y -1 ; $script:MessageCount++ } else { $script:MessageCount = [int]::new() }
-                                if (($line -match '\[[=\s]{26,27}\d{1,3}\.\d%[=\s]{26,27}\]') -and [string]::IsNullOrWhiteSpace($script:LastMessage)) { Move-Cursor -Y -2 }
+                    if ($RewriteLines -and ($Level -eq 'Progress') -and ($script:WriteProgress.Count -gt 0)) { Move-Cursor -Y -8 }
+
+                    foreach ($line in (Split-Line -Message $logtext -Width ($Host.UI.RawUI.WindowSize.Width - 26))) {
+                        if ($RewriteLines -and ($Level -ne 'Progress')) {
+
+                            if ($line -eq $script:LastMessage) { Move-Cursor -Y -1 ; $script:MessageCount++ }
+
+                            # DISM - progress bars have a blank line before them, so the cursor needs to move up twice
+                            elseif ((($line -match '\[[=\s]{26,27}\d{1,3}\.\d%[=\s]{26,27}\]') -and ([string]::IsNullOrWhiteSpace($script:LastMessage))) -or
+                                (([string]::IsNullOrWhiteSpace($line)) -and ($script:LastMessage -match '\[[=\s]{26,27}\d{1,3}\.\d%[=\s]{26,27}\]'))) {
+
+                                Move-Cursor -Y -1 ; if (-not ([string]::IsNullOrWhiteSpace($line))) { $script:MessageCount++ }
                             }
 
-                            Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp
-                            Write-Host -Object ('{0,-10}'-f $Level.ToUpper())           -NoNewLine  -ForegroundColor $LogColors.Item($Level)
+                            # ROBOCOPY - fix "100% %" by writing a space over the second percent (%)
+                            elseif (($line -match '^[\d\s]{3}(\.\d)?%') -and ($script:LastMessage -match '^[\d\s]{3}(\.\d)?%')) {
+                                if ($line -match '^100%') { Move-Cursor -Y -1 ; Move-Cursor -X 30 ; Write-Host -Object ' ' }
 
-                            switch ($InputObject.MessageData.ForegroundColor) {
-                                { $null -eq $PSItem } { Write-Host -Object $line -ForegroundColor $LogColors.Message }
-                                { $null -ne $PSItem } { Write-Host -Object $line -ForegroundColor $PSItem }
+                                Move-Cursor -Y -1 ; $script:MessageCount++
                             }
 
-                            if ($RewriteLines -and ($Level -ne 'Progress')) {
-                                $script:LastMessage = $line ; $script:WriteProgress.Clear()
-
-                                if ($script:MessageCount -gt 0) {
-                                    Move-Cursor -X ($Host.UI.RawUI.WindowSize.Width - 4 - $script:MessageCount.ToString().Length) -Y -1
-                                    Write-Host -Object (' [{0}] ' -f $script:MessageCount) -ForegroundColor $LogColors.Timestamp
-                                }
-                            }
+                            else { $script:MessageCount = [int]::new() }
                         }
 
-                        if ($RewriteLines -and ($Level -eq 'Progress')) {
-                            $script:LastMessage = [string]::Empty ; $script:WriteProgress.Add($progress)
+                        Write-Host -Object ('[{0:HH:mm:ss.fff}] ' -f $timestamp)    -NoNewLine  -ForegroundColor $LogColors.Timestamp
+                        Write-Host -Object ('{0,-10}'-f $Level.ToUpper())           -NoNewLine  -ForegroundColor $LogColors.Item($Level)
 
-                            if ($Completed -and ([string]::IsNullOrEmpty($progress.ParentId) -or
-                                ($progress.ParentId -notin $script:WriteProgress.Id))) {
-
-                                    $script:WriteProgress.Clear()
-                                }
+                        switch ($InputObject.MessageData.ForegroundColor) {
+                            { $null -eq $PSItem } { Write-Host -Object $line -ForegroundColor $LogColors.Message }
+                            { $null -ne $PSItem } { Write-Host -Object $line -ForegroundColor $PSItem }
                         }
+
+                        if ($RewriteLines -and ($Level -ne 'Progress')) {
+                            $script:LastMessage = $line ; $script:WriteProgress.Clear()
+
+                            if ($script:MessageCount -gt 0) {
+                                Move-Cursor -X ($Host.UI.RawUI.WindowSize.Width - 4 - $script:MessageCount.ToString().Length) -Y -1
+                                Write-Host -Object (' [{0}] ' -f $script:MessageCount) -ForegroundColor $LogColors.Timestamp
+                            }
+                        }
+                    }
+
+                    if ($RewriteLines -and ($Level -eq 'Progress')) {
+                        $script:LastMessage = [string]::Empty ; $script:WriteProgress.Add($progress)
+
+                        if ($Completed -and ([string]::IsNullOrEmpty($progress.ParentId) -or
+                            ($progress.ParentId -notin $script:WriteProgress.Id))) {
+
+                            $script:WriteProgress.Clear()
+                        }
+                    }
                 }
             }
 
